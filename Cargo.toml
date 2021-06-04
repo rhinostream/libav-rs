@@ -1,5 +1,5 @@
 [package]
-name = "libav-rust"
+name = "ffmpeg-rs"
 version = "0.1.0"
 authors = ["krishna chiatanya <kittuov@gmail.com>"]
 edition = "2018"

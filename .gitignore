@@ -4,3 +4,4 @@ Cargo.lock
 libav-sys/target
 libav-sys/nv_sdk
 libav-sys/ffmpeg
+libav-sys/nv-codec-headers
