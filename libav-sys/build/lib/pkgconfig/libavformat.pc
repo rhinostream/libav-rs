@@ -1,0 +1,14 @@
+prefix=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build
+exec_prefix=${prefix}
+libdir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/lib
+includedir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/include
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 58.76.100
+Requires: libavcodec >= 58.134.100, libavutil >= 56.70.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavformat ws2_32.lib
+Libs.private: 
+Cflags: -I${includedir}

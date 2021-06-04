@@ -1,4 +1,4 @@
-use libav_sys;
+pub mod avcodec;
 
 #[cfg(test)]
 mod tests {

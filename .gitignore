@@ -1,3 +1,6 @@
 /target
 Cargo.lock
 .idea
+libav-sys/target
+libav-sys/nv_sdk
+libav-sys/ffmpeg
