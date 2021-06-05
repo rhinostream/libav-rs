@@ -1,13 +1,18 @@
+use std::marker::PhantomData;
+
 pub use libav_sys::avcodec::{
     AVCodecHWConfig,
     AVCodecID,
+    AVCodecParameters,
+    AVHWDeviceContext,
     AVHWDeviceType,
+    AVHWFramesContext,
     AVMediaType,
     AVPixelFormat,
-    AVCodecParameters,
 };
-use libav_sys::avcodec::{av_hwframe_get_buffer, AVHWDeviceContext, AVHWFramesContext};
-use std::marker::PhantomData;
+use std::ptr::null;
+use std::mem::size_of;
+
 include!("codec.rs");
 include!("codec_context.rs");
 include!("dict.rs");

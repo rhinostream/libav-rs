@@ -145,7 +145,7 @@ impl Iterator for AVCodecIter {
 
 #[cfg(test)]
 mod tests {
-    use libav_sys::avcodec::{av_hwdevice_get_type_name, avcodec_get_hw_config, AVCodecHWConfig, AVCodecID_AV_CODEC_ID_HEVC};
+    use libav_sys::avcodec::{av_hwdevice_get_type_name, avcodec_get_hw_config, AVCodecHWConfig, AVCodecID_AV_CODEC_ID_HEVC, AVHWFrameTransferDirection_AV_HWFRAME_TRANSFER_DIRECTION_TO};
     use libav_sys::avcodec;
 
     use super::*;
@@ -191,14 +191,53 @@ mod tests {
         let codec = AVCodec::find_encoder_by_name("h264_nvenc").unwrap();
         let hw_config = codec.get_hw_config(0).unwrap();
         let mut hw_ctx = hwdevice_ctx_create(hw_config.device_type, "", None, 0).unwrap();
+        let constraints = hwdevice_get_hwframe_constraints(&mut hw_ctx, None);
+
+        println!("SW formats");
+
+        for fmt in constraints.valid_sw_formats {
+            println!("{}", pix_fmt_to_name(fmt))
+        }
+
+        println!("HW formats");
+        for fmt in constraints.valid_hw_formats {
+            println!("{}", pix_fmt_to_name(fmt))
+        }
         let mut hw_frame_ctx = hwframe_ctx_alloc(&mut hw_ctx);
         let mut frame_ctx = hw_frame_ctx.get_data().unwrap();
         frame_ctx.height = 2560;
         frame_ctx.width = 1440;
         frame_ctx.format = avcodec::AVPixelFormat_AV_PIX_FMT_CUDA;
-        frame_ctx.sw_format = avcodec::AVPixelFormat_AV_PIX_FMT_YUV444P;
+        frame_ctx.sw_format = avcodec::AVPixelFormat_AV_PIX_FMT_BGR0;
         hwframe_ctx_init(&mut hw_frame_ctx).unwrap();
         let mut frame = AVFrame::new();
         hwframe_get_buffer(&mut hw_frame_ctx, &mut frame, 0).unwrap();
+        unsafe {
+            let mut buf: *mut AVPixelFormat = null_mut();
+            avcodec::av_hwframe_transfer_get_formats(hw_frame_ctx.internal, AVHWFrameTransferDirection_AV_HWFRAME_TRANSFER_DIRECTION_TO, &mut buf, 0);
+            println!("TRANSFER SUPPORTED!");
+            for fmt in get_vector(buf) {
+                println!("{}", pix_fmt_to_name(fmt))
+            }
+        }
+    }
+}
+
+pub struct AVPacket {
+    internal: *mut avcodec::AVPacket,
+}
+
+impl Drop for AVPacket {
+    fn drop(&mut self) {
+        unsafe { avcodec::av_free_packet(self.internal); }
+    }
+}
+impl AVPacket {
+    #[allow(dead_code)]
+    fn new() -> Self {
+        unsafe {
+            let packet = avcodec::av_packet_alloc();
+            Self { internal: packet }
+        }
     }
 }

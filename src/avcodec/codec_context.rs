@@ -40,6 +40,46 @@ impl AVCodecContext {
             }
         }
     }
+    pub fn send_frame(&self, frame: &AVFrame) -> Result<i32, i32> {
+        unsafe {
+            let ret = avcodec::avcodec_send_frame(self.internal, frame.internal);
+            if ret < 0 {
+                Err(ret)
+            } else {
+                Ok(ret)
+            }
+        }
+    }
+    pub fn send_packet(&self, pkt: &AVPacket) -> Result<i32, i32> {
+        unsafe {
+            let ret = avcodec::avcodec_send_packet(self.internal, pkt.internal);
+            if ret < 0 {
+                Err(ret)
+            } else {
+                Ok(ret)
+            }
+        }
+    }
+    pub fn receive_pkt(&self, pkt: &mut AVPacket) -> Result<i32, i32> {
+        unsafe {
+            let ret = avcodec::avcodec_receive_packet(self.internal, pkt.internal);
+            if ret < 0 {
+                Err(ret)
+            } else {
+                Ok(ret)
+            }
+        }
+    }
+    pub fn receive_frame(&self, frame: &mut AVFrame) -> Result<i32, i32> {
+        unsafe {
+            let ret = avcodec::avcodec_receive_frame(self.internal, frame.internal);
+            if ret < 0 {
+                Err(ret)
+            } else {
+                Ok(ret)
+            }
+        }
+    }
 }
 
 pub struct AVBufferRef<T> {
@@ -129,11 +169,73 @@ pub fn hwframe_ctx_init(hw_frame_ctx: &mut AVBufferRef<AVHWFramesContext>) -> Re
 
 pub fn hwframe_get_buffer(hw_frame_ctx: &mut AVBufferRef<AVHWFramesContext>, frame: &mut AVFrame, flags: i32) -> Result<i32, i32> {
     unsafe {
-        let ret = av_hwframe_get_buffer(hw_frame_ctx.internal, frame.internal, flags);
+        let ret = avcodec::av_hwframe_get_buffer(hw_frame_ctx.internal, frame.internal, flags);
         if ret < 0 {
             Err(ret)
         } else {
             Ok(ret)
         }
+    }
+}
+
+pub fn hwdevice_get_hwframe_constraints(buf_ref: &mut AVBufferRef<AVHWDeviceContext>, _hwconfig: Option<*const c_void>) -> AVHWFramesConstraints {
+    unsafe {
+        return AVHWFramesConstraints::from(avcodec::av_hwdevice_get_hwframe_constraints(buf_ref.internal, null()));
+    }
+}
+
+pub struct AVHWFramesConstraints {
+    pub valid_hw_formats: Vec<AVPixelFormat>,
+    pub valid_sw_formats: Vec<AVPixelFormat>,
+
+    pub min_width: i32,
+    pub min_height: i32,
+    pub max_width: i32,
+    pub max_height: i32,
+}
+
+impl From<*mut avcodec::AVHWFramesConstraints> for AVHWFramesConstraints {
+    fn from(constraints: *mut avcodec::AVHWFramesConstraints) -> Self {
+        unsafe {
+            let valid_hw_formats = get_vector((*constraints).valid_hw_formats);
+            let valid_sw_formats = get_vector((*constraints).valid_sw_formats);
+
+            Self {
+                valid_hw_formats,
+                valid_sw_formats,
+                min_width: (*constraints).min_width,
+                min_height: (*constraints).min_height,
+                max_width: (*constraints).max_width,
+                max_height: (*constraints).max_height,
+            }
+        }
+    }
+}
+
+
+fn get_vector(fmts: *mut AVPixelFormat) -> Vec<AVPixelFormat> {
+    unsafe {
+        let mut out_fmts = Vec::new();
+        let data_size = size_of::<AVPixelFormat>();
+        let mut idx = 0;
+        loop {
+            let fmt = *((fmts as usize + (data_size * idx)) as *mut AVPixelFormat);
+            if fmt == avcodec::AVPixelFormat_AV_PIX_FMT_NONE {
+                break;
+            }
+            out_fmts.push(fmt);
+            idx += 1;
+        }
+        return out_fmts;
+    }
+}
+
+pub fn pix_fmt_to_name(pix_fmt: AVPixelFormat) -> String {
+    let mut out = String::new();
+    unsafe {
+        let buf = avcodec::av_get_pix_fmt_name(pix_fmt);
+        let stri = CStr::from_ptr(buf as *mut c_char);
+        out.push_str(stri.to_str().unwrap());
+        return out;
     }
 }

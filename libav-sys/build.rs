@@ -9,6 +9,7 @@ fn main() {
     let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
     println!("cargo:rerun-if-changed=wrapper_headers/avcodec.h");
+    println!("cargo:rerun-if-changed=wrapper_headers/avutil.h");
     println!("cargo:rustc-link-search=native={}", dir.join("build/lib").display());
     println!("cargo:rustc-link-lib=static=avcodec");
     println!("cargo:rustc-link-lib=static=avdevice");
@@ -22,6 +23,7 @@ fn main() {
 
     let bindings = builder()
         .header("wrapper_headers/avcodec.h")
+        .header("wrapper_headers/avutil.h")
         .clang_arg("-Ibuild/include")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate().expect("unable to generate bindings");
