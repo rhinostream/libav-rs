@@ -8,6 +8,7 @@ pub use libav_sys::avcodec::{
     AVHWFramesContext,
     AVMediaType,
     AVPixelFormat,
+    AVRational
 };
 use std::ptr::null;
 use std::mem::size_of;
