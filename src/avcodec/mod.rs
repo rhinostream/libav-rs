@@ -3,7 +3,6 @@ use std::marker::PhantomData;
 pub use libav_sys::avcodec::{
     AVCodecHWConfig,
     AVCodecID,
-    AVCodecParameters,
     AVHWDeviceContext,
     AVHWDeviceType,
     AVHWFramesContext,

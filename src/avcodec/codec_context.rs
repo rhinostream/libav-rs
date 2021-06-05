@@ -1,3 +1,36 @@
+pub struct AVCodecParameters {
+    pub internal: *mut avcodec::AVCodecParameters,
+}
+
+impl Drop for AVCodecParameters {
+    fn drop(&mut self) {
+        unsafe {
+            avcodec::avcodec_parameters_free(&mut self.internal);
+        }
+    }
+}
+
+impl AVCodecParameters {
+    pub fn new() -> Self {
+        unsafe {
+            Self {
+                internal: avcodec::avcodec_parameters_alloc()
+            }
+        }
+    }
+
+    pub fn from(ctx: &mut AVCodecContext) -> Result<Self, i32> {
+        let params = Self::new();
+        unsafe {
+            let ret = avcodec::avcodec_parameters_from_context(params.internal, ctx.internal);
+            if ret < 0 {
+                return Err(ret);
+            }
+        }
+        return Ok(params);
+    }
+}
+
 pub struct AVCodecContext {
     internal: *mut avcodec::AVCodecContext,
 }
@@ -18,7 +51,7 @@ impl AVCodecContext {
     }
     pub fn set_parameters(&self, parameters: &mut AVCodecParameters) -> Result<i32, i32> {
         unsafe {
-            let ret = avcodec::avcodec_parameters_to_context(self.internal, parameters);
+            let ret = avcodec::avcodec_parameters_to_context(self.internal, parameters.internal);
             if ret < 0 {
                 Err(ret)
             } else {
