@@ -114,8 +114,8 @@ impl AVCodecContext {
         }
     }
 
-    pub fn get_internal(&self)->avcodec::AVCodecContext{
-        return unsafe{*(self.internal)}
+    pub fn get_internal(&self)->&mut avcodec::AVCodecContext{
+        return unsafe{&mut *(self.internal)}
     }
 }
 
