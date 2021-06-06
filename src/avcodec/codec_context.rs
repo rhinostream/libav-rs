@@ -161,7 +161,7 @@ impl AVFrame {
         }
     }
     pub fn get_internal(&self) -> &mut avcodec::AVFrame {
-        return &mut unsafe { *self.internal };
+        return  unsafe { &mut *self.internal };
     }
 }
 

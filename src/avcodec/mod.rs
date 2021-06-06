@@ -1,4 +1,6 @@
 use std::marker::PhantomData;
+use std::mem::size_of;
+use std::ptr::null;
 
 pub use libav_sys::avcodec::{
     AVCodecHWConfig,
@@ -8,11 +10,8 @@ pub use libav_sys::avcodec::{
     AVHWFramesContext,
     AVMediaType,
     AVPixelFormat,
-    AVRational
+    AVRational,
 };
-use std::ptr::null;
-use std::mem::size_of;
-use alloc::raw_vec::ptr;
 
 include!("codec.rs");
 include!("codec_context.rs");
