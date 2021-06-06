@@ -63,7 +63,7 @@ impl AVCodecContext {
         unsafe {
             let mut r_dict = ptr::null_mut();
             if dict.is_some() {
-                    r_dict = &mut dict.unwrap().internal
+                r_dict = &mut dict.unwrap().internal
             }
             let ret = avcodec::avcodec_open2(self.internal, codec.int_codec, r_dict);
             if ret < 0 {
@@ -114,8 +114,8 @@ impl AVCodecContext {
         }
     }
 
-    pub fn get_internal(&self)->&mut avcodec::AVCodecContext{
-        return unsafe{&mut *(self.internal)}
+    pub fn get_internal(&self) -> &mut avcodec::AVCodecContext {
+        return unsafe { &mut *(self.internal) };
     }
 }
 
@@ -159,6 +159,9 @@ impl AVFrame {
         unsafe {
             Self { internal: avcodec::av_frame_alloc() }
         }
+    }
+    pub fn get_internal(&self) -> &mut avcodec::AVFrame {
+        return &mut unsafe { *self.internal };
     }
 }
 
