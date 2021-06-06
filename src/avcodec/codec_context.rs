@@ -161,7 +161,7 @@ impl AVFrame {
         }
     }
     pub fn get_internal(&self) -> &mut avcodec::AVFrame {
-        return  unsafe { &mut *self.internal };
+        return unsafe { &mut *self.internal };
     }
 }
 
@@ -276,6 +276,18 @@ pub fn pix_fmt_to_name(pix_fmt: AVPixelFormat) -> String {
         let buf = avcodec::av_get_pix_fmt_name(pix_fmt);
         let stri = CStr::from_ptr(buf as *mut c_char);
         out.push_str(stri.to_str().unwrap());
+        return out;
+    }
+}
+
+
+pub fn err_str(err: i32) -> String {
+    unsafe {
+        let size = 128;
+        let new_parse_str: *mut c_char = avcodec::av_malloc((size) as u64) as *mut c_char;
+        avcodec::av_strerror(err, new_parse_str, size);
+        let out = String::from(CStr::from_ptr(new_parse_str).to_str().unwrap());
+        avcodec::av_free(new_parse_str as *mut c_void);
         return out;
     }
 }
