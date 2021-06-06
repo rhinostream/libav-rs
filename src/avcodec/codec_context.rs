@@ -63,9 +63,9 @@ impl AVCodecContext {
         unsafe {
             let mut r_dict = null_mut();
             if dict.is_some() {
-                r_dict = dict.unwrap().internal
+                    r_dict = &mut dict.unwrap().internal
             }
-            let ret = avcodec::avcodec_open2(self.internal, codec.int_codec, &mut r_dict);
+            let ret = avcodec::avcodec_open2(self.internal, codec.int_codec, r_dict);
             if ret < 0 {
                 Err(ret)
             } else {
