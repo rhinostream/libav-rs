@@ -12,6 +12,7 @@ pub use libav_sys::avcodec::{
 };
 use std::ptr::null;
 use std::mem::size_of;
+use alloc::raw_vec::ptr;
 
 include!("codec.rs");
 include!("codec_context.rs");

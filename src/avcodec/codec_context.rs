@@ -61,7 +61,7 @@ impl AVCodecContext {
     }
     pub fn open2(&self, codec: &AVCodec, dict: Option<&mut AVDictionary>) -> Result<i32, i32> {
         unsafe {
-            let mut r_dict = null_mut();
+            let mut r_dict = ptr::null_mut();
             if dict.is_some() {
                     r_dict = &mut dict.unwrap().internal
             }
