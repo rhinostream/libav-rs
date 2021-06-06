@@ -113,6 +113,10 @@ impl AVCodecContext {
             }
         }
     }
+
+    pub fn get_internal(&self)->avcodec::AVCodecContext{
+        return unsafe{*(self.internal)}
+    }
 }
 
 pub struct AVBufferRef<T> {
