@@ -44,7 +44,7 @@ impl Drop for AVCodecContext {
 }
 
 impl AVCodecContext {
-    pub fn new(codec: AVCodec) -> Self {
+    pub fn new(codec: &AVCodec) -> Self {
         Self {
             internal: unsafe { avcodec::avcodec_alloc_context3(codec.int_codec as *const avcodec::AVCodec) }
         }
