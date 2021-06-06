@@ -244,7 +244,7 @@ impl AVPacket {
     pub fn get_internal(&self) -> &mut avcodec::AVPacket {
         return unsafe { &mut *self.internal };
     }
-    pub fn get_data(&self) -> *const [u8] {
-        slice_from_raw_parts(self.get_internal().data, self.get_internal().size as usize)
+    pub fn get_data(&self) -> &[u8] {
+        unsafe { &(*slice_from_raw_parts(self.get_internal().data, self.get_internal().size as usize)) }
     }
 }
