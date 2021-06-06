@@ -120,7 +120,7 @@ impl AVCodecContext {
 }
 
 pub struct AVBufferRef<T> {
-    internal: *mut avcodec::AVBufferRef,
+    pub internal: *mut avcodec::AVBufferRef,
     phantom: PhantomData<T>,
 }
 
