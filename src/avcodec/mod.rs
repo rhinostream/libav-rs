@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 use std::mem::size_of;
-use std::ptr::null;
+use std::ptr::{null, slice_from_raw_parts};
 
 pub use libav_sys::avcodec::{
     AVCodecHWConfig,

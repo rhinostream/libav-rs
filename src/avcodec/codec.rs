@@ -232,6 +232,7 @@ impl Drop for AVPacket {
         unsafe { avcodec::av_free_packet(self.internal); }
     }
 }
+
 impl AVPacket {
     #[allow(dead_code)]
     pub fn new() -> Self {
@@ -239,5 +240,11 @@ impl AVPacket {
             let packet = avcodec::av_packet_alloc();
             Self { internal: packet }
         }
+    }
+    pub fn get_internal(&self) -> &mut avcodec::AVPacket {
+        return unsafe { &mut *self.internal };
+    }
+    pub fn get_data(&self) -> *const [u8] {
+        slice_from_raw_parts(self.get_internal().data, self.get_internal().size as usize)
     }
 }
