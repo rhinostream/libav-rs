@@ -1,3 +1,5 @@
+pub use libav_sys::avcodec as avcodec_sys;
+
 pub mod avcodec;
 
 #[cfg(test)]
