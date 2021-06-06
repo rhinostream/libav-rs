@@ -234,7 +234,7 @@ impl Drop for AVPacket {
 }
 impl AVPacket {
     #[allow(dead_code)]
-    fn new() -> Self {
+    pub fn new() -> Self {
         unsafe {
             let packet = avcodec::av_packet_alloc();
             Self { internal: packet }
