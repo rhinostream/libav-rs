@@ -21,10 +21,14 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=Bcrypt");
     println!("cargo:rustc-link-lib=dylib=User32");
 
+    let cuda_path = PathBuf::from(env!("CUDA_PATH"));
+    let include_path = cuda_path.join("include");
+
     let bindings = builder()
         .header("wrapper_headers/avcodec.h")
         .header("wrapper_headers/avutil.h")
         .clang_arg("-Ibuild/include")
+        .clang_arg(format!("-I{}",include_path.display()))
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate().expect("unable to generate bindings");
 
