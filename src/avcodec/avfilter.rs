@@ -169,7 +169,7 @@ impl AVFilterGraph {
 
     pub fn buffersink_get_hw_frames_ctx(&self, ctx: &AVFilterContext) -> AVBufferRef<AVHWFramesContext> {
         unsafe {
-            return AVBufferRef::from(avcodec::av_buffersink_get_hw_frames_ctx(ctx.internal));
+            return AVBufferRef::from(avcodec::av_buffer_ref(avcodec::av_buffersink_get_hw_frames_ctx(ctx.internal)));
         }
     }
 }
