@@ -166,6 +166,11 @@ impl AVFilterContext {
             (*self.internal).hw_device_ctx = avcodec::av_buffer_ref(device_ctx.internal);
         }
     }
+    pub fn get_internal(&mut self) -> &mut avcodec::AVFilterContext {
+        unsafe {
+            return &mut *self.internal;
+        }
+    }
 }
 
 pub fn av_strdup(s: &str) -> *mut c_char {
