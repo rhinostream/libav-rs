@@ -233,7 +233,7 @@ impl AVBufferSrcParameters {
         }
     }
     pub fn set_hw_frames_context(&mut self, buf: &AVBufferRef<AVHWFramesContext>) {
-        unsafe { (*self.internal).hw_frames_ctx = buf.internal; }
+        unsafe { (*self.internal).hw_frames_ctx = avcodec::av_buffer_ref(buf.internal); }
     }
 }
 
