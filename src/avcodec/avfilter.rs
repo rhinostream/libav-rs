@@ -5,9 +5,9 @@ pub struct AVFilter {
 impl AVFilter {
     pub fn get_by_name(name: &str) -> Result<Self, ()> {
         unsafe {
-            let c_name = CString::new(name).unwrap();
-            let filter = avcodec::avfilter_get_by_name(c_name.as_ptr());
-            drop(c_name);
+            let c_name = CString::new(name).unwrap().into_raw();
+            let filter = avcodec::avfilter_get_by_name(c_name);
+            let _ = CString::from_raw(c_name);
             if filter.is_null() {
                 return Err(());
             }
@@ -107,8 +107,9 @@ impl AVFilterGraph {
     }
     pub fn parse_str(&self, filters: &str, inputs: &mut AVFilterInOut, outputs: &mut AVFilterInOut) -> Result<(), i32> {
         unsafe {
-            let c_filters = CString::new(filters).unwrap();
-            let ret = avcodec::avfilter_graph_parse_ptr(self.internal, c_filters.as_ptr(), &mut inputs.internal, &mut outputs.internal, null_mut());
+            let c_filters = CString::new(filters).unwrap().into_raw();
+            let ret = avcodec::avfilter_graph_parse_ptr(self.internal, c_filters, &mut inputs.internal, &mut outputs.internal, null_mut());
+            let _ = CString::from_raw(c_filters);
             if ret < 0 {
                 return Err(ret);
             }
@@ -183,8 +184,10 @@ impl AVFilterContext {
 
 pub fn av_strdup(s: &str) -> *mut c_char {
     unsafe {
-        let str = CString::new(s).unwrap();
-        return avcodec::av_strdup(str.as_ptr());
+        let str = CString::new(s).unwrap().into_raw();
+        let out = avcodec::av_strdup(str);
+        let _ = CString::from_raw(str);
+        out
     }
 }
 
@@ -198,8 +201,9 @@ impl AVFilterContext {
     #[allow(unused)]
     fn opt_set_int_list(&self, opt_name: &str, list: Vec<i32>, search_flags: i32) -> Result<(), i32> {
         unsafe {
-            let c_name = CString::new(opt_name).unwrap();
-            let ret = avcodec::av_opt_set_bin(self.internal as *mut c_void, c_name.as_ptr(), list.as_ptr() as *const u8, (list.len() * size_of::<i32>()) as i32, search_flags);
+            let c_name = CString::new(opt_name).unwrap().into_raw();
+            let ret = avcodec::av_opt_set_bin(self.internal as *mut c_void, c_name, list.as_ptr() as *const u8, (list.len() * size_of::<i32>()) as i32, search_flags);
+            let _ = CString::from_raw(c_name);
             if ret < 0 {
                 return Err(ret);
             }
