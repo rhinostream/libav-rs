@@ -13,6 +13,8 @@ pub use libav_sys::avcodec::{
     AVRational,
 };
 
+use log::info;
+
 include!("codec.rs");
 include!("codec_context.rs");
 include!("dict.rs");

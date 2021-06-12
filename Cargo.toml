@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 libav-sys = { path = "libav-sys" }
+log = "0.4.14"
