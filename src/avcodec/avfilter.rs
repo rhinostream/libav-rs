@@ -62,7 +62,7 @@ impl Drop for AVFilterGraph {
     fn drop(&mut self) {
         unsafe {
             info!("freeing graph ctx");
-            info!("freeing nb_filters = {}",(*self.internal).nb_filters);
+            info!("freeing nb_filters = {}", (*self.internal).nb_filters);
             let mut i = 0;
             while (*self.internal).nb_filters > 0 {
                 i += 1;
@@ -193,10 +193,9 @@ impl AVFilterContext {
 
 pub fn av_strdup(s: &str) -> *mut c_char {
     unsafe {
-        let str = CString::new(s).unwrap().into_raw();
-        let out = avcodec::av_strdup(str);
-        let _ = CString::from_raw(str);
-        out
+        let str = CString::new(s).unwrap();
+        let cstr = str.as_c_str();
+        avcodec::av_strdup(cstr.as_ptr())
     }
 }
 
