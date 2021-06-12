@@ -5,9 +5,9 @@ pub struct AVFilter {
 impl AVFilter {
     pub fn get_by_name(name: &str) -> Result<Self, ()> {
         unsafe {
-            let c_name = CString::new(name).unwrap().into_raw();
+            let c_name = av_strdup(name);
             let filter = avcodec::avfilter_get_by_name(c_name);
-            let _ = CString::from_raw(c_name);
+            av_strfree(c_name);
             if filter.is_null() {
                 return Err(());
             }
@@ -81,17 +81,17 @@ impl AVFilterGraph {
             let mut c_name = null_mut();
             let mut c_args = null_mut();
             if name.is_some() {
-                c_name = CString::new(name.unwrap()).unwrap().into_raw();
+                c_name = av_strdup(name.unwrap())
             }
             if args.is_some() {
-                c_args = CString::new(args.unwrap()).unwrap().into_raw();
+                c_args = av_strdup(args.unwrap());
             }
             let ret = avcodec::avfilter_graph_create_filter(&mut filter_ctx, filter.internal, c_name, c_args, opaque, self.internal);
             if !c_name.is_null() {
-                let _ = CString::from_raw(c_name);
+                av_strfree(c_name);
             }
             if !c_args.is_null() {
-                let _ = CString::from_raw(c_args);
+                av_strfree(c_args);
             }
 
             if ret < 0 {
@@ -107,9 +107,9 @@ impl AVFilterGraph {
     }
     pub fn parse_str(&self, filters: &str, inputs: &mut AVFilterInOut, outputs: &mut AVFilterInOut) -> Result<(), i32> {
         unsafe {
-            let c_filters = CString::new(filters).unwrap().into_raw();
+            let c_filters = av_strdup(filters);
             let ret = avcodec::avfilter_graph_parse_ptr(self.internal, c_filters, &mut inputs.internal, &mut outputs.internal, null_mut());
-            let _ = CString::from_raw(c_filters);
+            av_strfree(c_filters);
             if ret < 0 {
                 return Err(ret);
             }
@@ -201,9 +201,9 @@ impl AVFilterContext {
     #[allow(unused)]
     fn opt_set_int_list(&self, opt_name: &str, list: Vec<i32>, search_flags: i32) -> Result<(), i32> {
         unsafe {
-            let c_name = CString::new(opt_name).unwrap().into_raw();
+            let c_name = av_strdup(opt_name);
             let ret = avcodec::av_opt_set_bin(self.internal as *mut c_void, c_name, list.as_ptr() as *const u8, (list.len() * size_of::<i32>()) as i32, search_flags);
-            let _ = CString::from_raw(c_name);
+            av_strfree(c_name);
             if ret < 0 {
                 return Err(ret);
             }
