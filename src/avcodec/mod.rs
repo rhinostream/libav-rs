@@ -16,3 +16,4 @@ pub use libav_sys::avcodec::{
 include!("codec.rs");
 include!("codec_context.rs");
 include!("dict.rs");
+include!("avfilter.rs");

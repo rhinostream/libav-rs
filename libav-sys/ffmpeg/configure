@@ -1050,6 +1050,7 @@ test_nvcc(){
     tmpo_=$TMPO
     [ -x "$(command -v cygpath)" ] && tmpcu_=$(cygpath -m $tmpcu_) && tmpo_=$(cygpath -m $tmpo_)
     test_cmd $nvcc $nvccflags "$@" $NVCC_C $(nvcc_o $tmpo_) $tmpcu_
+    test_cmd xxd
 }
 
 check_nvcc() {

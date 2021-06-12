@@ -26,9 +26,10 @@ OUT="$1"
 IN="$2"
 NAME="$(basename "$IN" | sed 's/\..*//')"
 
-printf "const char %s_ptx[] = \\" "$NAME" > "$OUT"
+printf "const char %s_ptx[] = {\\" "$NAME" > "$OUT"
 echo >> "$OUT"
-sed -e "$(printf 's/\r//g')" -e 's/["\\]/\\&/g' -e "$(printf 's/^/\t"/')" -e 's/$/\\n"/' < "$IN" >> "$OUT"
-echo ";" >> "$OUT"
+xxd -i < "$IN" >> "$OUT"
+echo "  ,0x00" >> "$OUT"
+echo "};" >> "$OUT"
 
 exit 0

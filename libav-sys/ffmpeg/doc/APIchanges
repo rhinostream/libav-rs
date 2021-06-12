@@ -3316,7 +3316,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   The old decoding functions are deprecated, all new code should use the
   new functions avcodec_decode_video2(), avcodec_decode_audio3() and
   avcodec_decode_subtitle2(). These new functions take an AVPacket *pkt
-  argument instead of a const uint8_t *buf / int buf_size pair.
+  argument instead of a const uint8_t *buf / int BUF_SIZE pair.
 
 2009-04-03 - 7b09db3 - lavu 50.3.0 - av_fifo_space()
   Introduce the av_fifo_space() function.

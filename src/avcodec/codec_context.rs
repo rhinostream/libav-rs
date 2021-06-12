@@ -163,6 +163,11 @@ impl AVFrame {
     pub fn get_internal(&self) -> &mut avcodec::AVFrame {
         return unsafe { &mut *self.internal };
     }
+    pub fn unref(&mut self){
+        unsafe {
+            avcodec::av_frame_unref(self.internal);
+        }
+    }
 }
 
 impl Drop for AVFrame {
