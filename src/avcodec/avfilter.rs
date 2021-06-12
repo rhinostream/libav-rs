@@ -62,6 +62,7 @@ impl Drop for AVFilterGraph {
     fn drop(&mut self) {
         unsafe {
             info!("freeing graph ctx");
+            info!("freeing nb_filters = {}",(*self.internal).nb_filters);
             let mut i = 0;
             while (*self.internal).nb_filters > 0 {
                 i += 1;
