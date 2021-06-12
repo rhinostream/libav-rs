@@ -61,7 +61,9 @@ pub struct AVFilterGraph {
 impl Drop for AVFilterGraph {
     fn drop(&mut self) {
         unsafe {
+            info!("freeing graph ctx");
             avcodec::avfilter_graph_free(&mut self.internal);
+            info!("freed graph ctx");
         }
     }
 }
@@ -289,5 +291,6 @@ pub mod test_filter {
         params_t.set_hw_frames_context(&hw_frames_ctx);
         graph.buffersrc_set(&mut buffer_src_ctx, &params_t).unwrap();
         assert_eq!(0, graph.config().err().unwrap_or(0));
+        drop(graph);
     }
 }
