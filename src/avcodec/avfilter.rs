@@ -199,9 +199,10 @@ pub fn av_strdup(s: &str) -> *mut c_char {
     }
 }
 
-pub fn av_strfree(s: *mut c_char) {
+pub fn av_strfree(_s: *mut c_char) {
     unsafe {
-        avcodec::av_free(s as *mut c_void);
+        // avcodec::av_free(s as *mut c_void);
+
     }
 }
 
