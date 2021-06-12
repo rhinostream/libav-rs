@@ -199,10 +199,9 @@ pub fn av_strdup(s: &str) -> *mut c_char {
     }
 }
 
-pub fn av_strfree(_s: *mut c_char) {
+pub fn av_strfree(s: *mut c_char) {
     unsafe {
-        // avcodec::av_free(s as *mut c_void);
-
+        avcodec::av_free(s as *mut c_void);
     }
 }
 
@@ -299,5 +298,6 @@ pub mod test_filter {
         graph.buffersrc_set(&mut buffer_src_ctx, &params_t).unwrap();
         assert_eq!(0, graph.config().err().unwrap_or(0));
         drop(graph);
+        println!("hello world after freeee");
     }
 }

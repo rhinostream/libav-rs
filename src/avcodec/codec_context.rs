@@ -147,6 +147,9 @@ impl<T> AVBufferRef<T> {
             return Some(x);
         }
     }
+    pub fn get_internal(&mut self) -> &mut avcodec::AVBufferRef {
+        return  unsafe { &mut *self.internal };
+    }
 }
 
 
