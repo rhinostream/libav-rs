@@ -154,6 +154,12 @@ impl AVFilterGraph {
             }
         }
     }
+
+    pub fn buffersink_get_hw_frames_ctx(&self, ctx: &AVFilterContext) -> AVBufferRef<AVHWFramesContext> {
+        unsafe {
+            return AVBufferRef::from(avcodec::av_buffersink_get_hw_frames_ctx(ctx.internal));
+        }
+    }
 }
 
 pub struct AVFilterContext {
@@ -239,7 +245,7 @@ pub mod test_filter {
         let buffer_src = AVFilter::get_by_name("buffer").unwrap();
         let buffer_sink = AVFilter::get_by_name("buffersink").unwrap();
         let buffer_src_ctx = graph.create_filter(&buffer_src, Some("in"),
-                                                 Some(format!("video_size=3840x2160:pix_fmt={}:time_base=1/60:pixel_aspect=16/9", avcodec::AVPixelFormat_AV_PIX_FMT_CUDA).as_str()), null_mut());
+                                                 Some(format!("video_size=3840x2160:pix_fmt={}:time_base=1/60", avcodec::AVPixelFormat_AV_PIX_FMT_CUDA).as_str()), null_mut());
         if buffer_src_ctx.is_err() {
             let err = buffer_src_ctx.err().unwrap();
             println!("error: {}", err_str(err));
