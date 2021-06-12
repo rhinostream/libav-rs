@@ -143,10 +143,29 @@ impl AVFilterGraph {
         }
         return Ok(());
     }
+
+    pub fn buffersrc_set(&self, ctx: &mut AVFilterContext, par: &AVBufferSrcParameters) -> Result<(), i32> {
+        unsafe {
+            let ret = avcodec::av_buffersrc_parameters_set(ctx.internal, par.internal);
+            if ret < 0 {
+                Err(ret)
+            } else {
+                Ok(())
+            }
+        }
+    }
 }
 
 pub struct AVFilterContext {
     internal: *mut avcodec::AVFilterContext,
+}
+
+impl AVFilterContext {
+    pub fn set_hw_device_ctx(&mut self, device_ctx: &AVBufferRef<AVHWDeviceContext>) {
+        unsafe {
+            (*self.internal).hw_device_ctx = avcodec::av_buffer_ref(device_ctx.internal);
+        }
+    }
 }
 
 pub fn av_strdup(s: &str) -> *mut c_char {
@@ -176,6 +195,35 @@ impl AVFilterContext {
     }
 }
 
+pub struct AVBufferSrcParameters {
+    internal: *mut avcodec::AVBufferSrcParameters,
+}
+
+
+impl Drop for AVBufferSrcParameters {
+    fn drop(&mut self) {
+        unsafe { avcodec::av_freep(&mut self.internal as *mut _ as *mut c_void) }
+    }
+}
+
+impl AVBufferSrcParameters {
+    pub fn new() -> Self {
+        unsafe {
+            Self {
+                internal: avcodec::av_buffersrc_parameters_alloc(),
+            }
+        }
+    }
+    pub fn get_mut(&mut self) -> &mut avcodec::AVBufferSrcParameters {
+        unsafe {
+            &mut *self.internal
+        }
+    }
+    pub fn set_hw_frames_context(&mut self, buf: &AVBufferRef<AVHWFramesContext>) {
+        unsafe { (*self.internal).hw_frames_ctx = buf.internal; }
+    }
+}
+
 #[cfg(test)]
 pub mod test_filter {
     use super::*;
@@ -186,30 +234,43 @@ pub mod test_filter {
         let buffer_src = AVFilter::get_by_name("buffer").unwrap();
         let buffer_sink = AVFilter::get_by_name("buffersink").unwrap();
         let buffer_src_ctx = graph.create_filter(&buffer_src, Some("in"),
-                                                 Some(format!("video_size=3840x2160:pix_fmt={}:time_base=1/60:pixel_aspect=3840/2160", avcodec::AVPixelFormat_AV_PIX_FMT_CUDA).as_str()), null_mut());
+                                                 Some(format!("video_size=3840x2160:pix_fmt={}:time_base=1/60:pixel_aspect=16/9", avcodec::AVPixelFormat_AV_PIX_FMT_CUDA).as_str()), null_mut());
         if buffer_src_ctx.is_err() {
             let err = buffer_src_ctx.err().unwrap();
             println!("error: {}", err_str(err));
             panic!();
         }
-        let buffer_src_ctx = buffer_src_ctx.unwrap();
-        let _buffer_sink_ctx = graph.create_filter(&buffer_sink, Some("out"), Some(format!("pix_fmts={}", avcodec::AVPixelFormat_AV_PIX_FMT_NV12).as_str()), null_mut());
+        let mut buffer_src_ctx = buffer_src_ctx.unwrap();
+        let mut buffer_sink_ctx = graph.create_filter(&buffer_sink, Some("out"), None, null_mut()).unwrap();
         let mut inputs = AVFilterInOut::new();
         let mut outputs = AVFilterInOut::new();
 
-        let inp_int = inputs.get_internals();
 
-        inp_int.name = av_strdup("in");
-        inp_int.filter_ctx = buffer_src_ctx.internal;
-        inp_int.pad_idx = 0;
-        inp_int.next = null_mut();
+        let out_ = outputs.get_internals();
 
-        let out_int = outputs.get_internals();
-        out_int.name = av_strdup("out");
-        out_int.filter_ctx = buffer_src_ctx.internal;
-        out_int.pad_idx = 0;
-        out_int.next = null_mut();
+        out_.name = av_strdup("in");
+        out_.filter_ctx = buffer_src_ctx.internal;
+        out_.pad_idx = 0;
+        out_.next = null_mut();
 
-        graph.parse_str("scale_npp=1280:720", &mut inputs, &mut outputs).unwrap();
+        let in_ = inputs.get_internals();
+        in_.name = av_strdup("out");
+        in_.filter_ctx = buffer_sink_ctx.internal;
+        in_.pad_idx = 0;
+        in_.next = null_mut();
+
+        let mut device = hwdevice_ctx_create(avcodec::AVHWDeviceType_AV_HWDEVICE_TYPE_CUDA, "", None, 0).unwrap();
+        let mut hw_frames_ctx = hwframe_ctx_alloc(&mut device);
+        let mut frame_ctx = hw_frames_ctx.get_data().unwrap();
+        frame_ctx.height = 2560;
+        frame_ctx.width = 1440;
+        frame_ctx.format = avcodec::AVPixelFormat_AV_PIX_FMT_CUDA;
+        frame_ctx.sw_format = avcodec::AVPixelFormat_AV_PIX_FMT_YUV444P;
+        hwframe_ctx_init(&mut hw_frames_ctx).unwrap();
+        graph.parse_str("scale_cuda=1280:720", &mut inputs, &mut outputs).unwrap();
+        let mut params_t = AVBufferSrcParameters::new();
+        params_t.set_hw_frames_context(&hw_frames_ctx);
+        graph.buffersrc_set(&mut buffer_src_ctx, &params_t).unwrap();
+        assert_eq!(0, graph.config().err().unwrap_or(0));
     }
 }
