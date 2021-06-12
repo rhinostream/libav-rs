@@ -260,7 +260,7 @@ pub mod test_filter {
             panic!();
         }
         let mut buffer_src_ctx = buffer_src_ctx.unwrap();
-        let mut buffer_sink_ctx = graph.create_filter(&buffer_sink, Some("out"), None, null_mut()).unwrap();
+        let buffer_sink_ctx = graph.create_filter(&buffer_sink, Some("out"), None, null_mut()).unwrap();
         let mut inputs = AVFilterInOut::new();
         let mut outputs = AVFilterInOut::new();
 

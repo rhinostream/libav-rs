@@ -183,13 +183,15 @@ pub fn hwdevice_ctx_create(typ: AVHWDeviceType, device: &str, opts: Option<&AVDi
         if opts.is_some() {
             raw_opts = opts.unwrap().internal;
         }
-        let device = CString::new(device).unwrap().into_raw();
-        let ret = avcodec::av_hwdevice_ctx_create(&mut buf, typ, device, raw_opts, flags);
-        let _ = CString::from_raw(device);
+        let mut cdevice = null_mut();
+        if device.len() > 0 {
+            cdevice = av_strdup(device);
+        }
+        let ret = avcodec::av_hwdevice_ctx_create(&mut buf, typ, cdevice, raw_opts, flags);
+        av_strfree(cdevice);
         if ret < 0 {
             return Err(ret);
         }
-
         return Ok(AVBufferRef::from(buf));
     }
 }
