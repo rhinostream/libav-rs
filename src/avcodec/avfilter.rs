@@ -61,16 +61,7 @@ pub struct AVFilterGraph {
 impl Drop for AVFilterGraph {
     fn drop(&mut self) {
         unsafe {
-            info!("freeing graph ctx");
-            info!("freeing nb_filters = {}", (*self.internal).nb_filters);
-            let mut i = 0;
-            while (*self.internal).nb_filters > 0 {
-                i += 1;
-                info!("freeing filter_ctx {}", i);
-                avcodec::avfilter_free(*(*self.internal).filters);
-            }
             avcodec::avfilter_graph_free(&mut self.internal);
-            info!("freed graph ctx");
         }
     }
 }
@@ -227,7 +218,7 @@ pub struct AVBufferSrcParameters {
 
 impl Drop for AVBufferSrcParameters {
     fn drop(&mut self) {
-        unsafe { avcodec::av_freep(&mut self.internal as *mut _ as *mut c_void) }
+        unsafe { avcodec::av_free(&mut self.internal as *mut _ as *mut c_void) }
     }
 }
 

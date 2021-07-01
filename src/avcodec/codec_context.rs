@@ -38,7 +38,7 @@ pub struct AVCodecContext {
 impl Drop for AVCodecContext {
     fn drop(&mut self) {
         unsafe {
-            avcodec::avcodec_free_context(&mut self.internal as *mut *mut avcodec::AVCodecContext);
+            avcodec::avcodec_free_context(&mut self.internal);
         }
     }
 }
