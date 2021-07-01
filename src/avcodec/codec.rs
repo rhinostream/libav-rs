@@ -229,7 +229,7 @@ pub struct AVPacket {
 
 impl Drop for AVPacket {
     fn drop(&mut self) {
-        unsafe { avcodec::av_packet_free(self.internal); }
+        unsafe { avcodec::av_packet_free(&mut self.internal); }
     }
 }
 
@@ -247,7 +247,7 @@ impl AVPacket {
     pub fn get_data(&self) -> &[u8] {
         unsafe { &(*slice_from_raw_parts(self.get_internal().data, self.get_internal().size as usize)) }
     }
-    pub fn unref() {
+    pub fn unref(&mut self) {
         unsafe {
             avcodec::av_packet_unref(self.internal);
         }
