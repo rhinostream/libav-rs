@@ -147,7 +147,7 @@ impl AVFilterGraph {
         return Ok(());
     }
 
-    pub fn buffersrc_set(&self, ctx: &mut AVFilterContext, mut par :AVBufferSrcParameters) -> Result<(), i32> {
+    pub fn buffersrc_set(&self, ctx: &mut AVFilterContext, mut par: AVBufferSrcParameters) -> Result<(), i32> {
         unsafe {
             let ret = avcodec::av_buffersrc_parameters_set(ctx.internal, par.internal);
             par.internal = null_mut() as _;
@@ -219,7 +219,11 @@ pub struct AVBufferSrcParameters {
 
 impl Drop for AVBufferSrcParameters {
     fn drop(&mut self) {
-        unsafe { avcodec::av_free(&mut self.internal as *mut _ as *mut c_void) }
+        unsafe {
+            if self.internal != null_mut() {
+                avcodec::av_free(&mut self.internal as *mut _ as *mut c_void)
+            }
+        }
     }
 }
 
