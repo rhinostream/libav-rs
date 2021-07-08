@@ -147,9 +147,10 @@ impl AVFilterGraph {
         return Ok(());
     }
 
-    pub fn buffersrc_set(&self, ctx: &mut AVFilterContext, par: &AVBufferSrcParameters) -> Result<(), i32> {
+    pub fn buffersrc_set(&self, ctx: &mut AVFilterContext, mut par :AVBufferSrcParameters) -> Result<(), i32> {
         unsafe {
             let ret = avcodec::av_buffersrc_parameters_set(ctx.internal, par.internal);
+            par.internal = null_mut() as _;
             if ret < 0 {
                 Err(ret)
             } else {
@@ -286,7 +287,7 @@ pub mod test_filter {
         graph.parse_str("scale_cuda=1280:720", &mut inputs, &mut outputs).unwrap();
         let mut params_t = AVBufferSrcParameters::new();
         params_t.set_hw_frames_context(&hw_frames_ctx);
-        graph.buffersrc_set(&mut buffer_src_ctx, &params_t).unwrap();
+        graph.buffersrc_set(&mut buffer_src_ctx, params_t).unwrap();
         assert_eq!(0, graph.config().err().unwrap_or(0));
         drop(graph);
         println!("hello world after freeee");
