@@ -12,8 +12,8 @@ pub use libav_sys::avcodec::{
     AVPixelFormat,
     AVRational,
 };
-
-use log::info;
+#[allow(unused)]
+use log::{error, info};
 
 include!("codec.rs");
 include!("codec_context.rs");

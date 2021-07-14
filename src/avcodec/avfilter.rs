@@ -129,8 +129,8 @@ impl AVFilterGraph {
     pub fn add_frame_flags(&self, buffersrc_ctx: &mut AVFilterContext, frame: &mut AVFrame, flags: i32) -> Result<(), i32> {
         unsafe {
             let fr = avcodec::av_frame_alloc();
-            avcodec::av_frame_ref(fr, frame.internal);
-            let ret = avcodec::av_buffersrc_add_frame_flags(buffersrc_ctx.internal, fr, flags);
+            avcodec::av_frame_ref(fr, frame.get_internal());
+            let ret = avcodec::av_buffersrc_add_frame_flags(buffersrc_ctx.get_internal(), fr, flags);
             if ret < 0 {
                 return Err(ret);
             }
@@ -139,7 +139,7 @@ impl AVFilterGraph {
     }
     pub fn get_frame_flags(&self, buffersink_ctx: &mut AVFilterContext, frame: &mut AVFrame, flags: i32) -> Result<(), i32> {
         unsafe {
-            let ret = avcodec::av_buffersink_get_frame_flags(buffersink_ctx.internal, frame.internal, flags);
+            let ret = avcodec::av_buffersink_get_frame_flags(buffersink_ctx.get_internal(), frame.get_internal(), flags);
             if ret < 0 {
                 return Err(ret);
             }

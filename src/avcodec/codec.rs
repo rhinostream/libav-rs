@@ -8,7 +8,7 @@ use libav_sys::avcodec::avcodec_get_hw_config;
 const EMPTY_STR: &str = "";
 
 pub struct AVCodec {
-    pub int_codec: *mut avcodec::AVCodec,
+    pub int_codec: *const avcodec::AVCodec,
     pub name: &'static str,
     pub long_name: &'static str,
     pub media_type: AVMediaType,
@@ -220,16 +220,33 @@ mod tests {
                 println!("{}", pix_fmt_to_name(fmt))
             }
         }
+        let pkt = AVPacket::new();
+        drop(pkt)
     }
 }
 
-pub struct AVPacket {
-    internal: *mut avcodec::AVPacket,
-}
+#[repr(transparent)]
+pub struct AVPacket(*mut avcodec::AVPacket);
 
 impl Drop for AVPacket {
-    fn drop(&mut self) {
-        unsafe { avcodec::av_packet_free(&mut self.internal); }
+    fn drop(&mut self)
+    {
+        unsafe {
+            avcodec::av_packet_free(&mut self.0);
+        }
+    }
+}
+
+impl Clone for AVPacket {
+    fn clone(&self) -> Self {
+        let pkt = Self::new();
+        unsafe {
+            let result = avcodec::av_packet_ref(pkt.get_internal(), self.0);
+            if result < 0 {
+                error!("CRITICAL: unable to clone packet!: {}",err_str(result));
+            }
+        }
+        return pkt;
     }
 }
 
@@ -238,18 +255,18 @@ impl AVPacket {
     pub fn new() -> Self {
         unsafe {
             let packet = avcodec::av_packet_alloc();
-            Self { internal: packet }
+            Self(packet)
         }
     }
     pub fn get_internal(&self) -> &mut avcodec::AVPacket {
-        return unsafe { &mut *self.internal };
+        return unsafe { &mut *self.0 };
     }
     pub fn get_data(&self) -> &[u8] {
         unsafe { &(*slice_from_raw_parts(self.get_internal().data, self.get_internal().size as usize)) }
     }
     pub fn unref(&mut self) {
         unsafe {
-            avcodec::av_packet_unref(self.internal);
+            avcodec::av_packet_unref(self.0);
         }
     }
 }

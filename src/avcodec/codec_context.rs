@@ -75,7 +75,7 @@ impl AVCodecContext {
     }
     pub fn send_frame(&self, frame: &AVFrame) -> Result<i32, i32> {
         unsafe {
-            let ret = avcodec::avcodec_send_frame(self.internal, frame.internal);
+            let ret = avcodec::avcodec_send_frame(self.internal, frame.get_internal());
             if ret < 0 {
                 Err(ret)
             } else {
@@ -85,7 +85,7 @@ impl AVCodecContext {
     }
     pub fn send_packet(&self, pkt: &AVPacket) -> Result<i32, i32> {
         unsafe {
-            let ret = avcodec::avcodec_send_packet(self.internal, pkt.internal);
+            let ret = avcodec::avcodec_send_packet(self.internal, pkt.get_internal());
             if ret < 0 {
                 Err(ret)
             } else {
@@ -95,7 +95,7 @@ impl AVCodecContext {
     }
     pub fn receive_pkt(&self, pkt: &mut AVPacket) -> Result<i32, i32> {
         unsafe {
-            let ret = avcodec::avcodec_receive_packet(self.internal, pkt.internal);
+            let ret = avcodec::avcodec_receive_packet(self.internal, pkt.get_internal());
             if ret < 0 {
                 Err(ret)
             } else {
@@ -105,7 +105,7 @@ impl AVCodecContext {
     }
     pub fn receive_frame(&self, frame: &mut AVFrame) -> Result<i32, i32> {
         unsafe {
-            let ret = avcodec::avcodec_receive_frame(self.internal, frame.internal);
+            let ret = avcodec::avcodec_receive_frame(self.internal, frame.get_internal());
             if ret < 0 {
                 Err(ret)
             } else {
@@ -148,34 +148,42 @@ impl<T> AVBufferRef<T> {
         }
     }
     pub fn get_internal(&mut self) -> &mut avcodec::AVBufferRef {
-        return  unsafe { &mut *self.internal };
+        return unsafe { &mut *self.internal };
     }
 }
 
+#[repr(transparent)]
+pub struct AVFrame(*mut avcodec::AVFrame);
 
-pub struct AVFrame {
-    internal: *mut avcodec::AVFrame,
+impl Clone for AVFrame {
+    fn clone(&self) -> Self {
+        unsafe {
+            let frame = avcodec::av_frame_clone(self.0);
+            return Self(frame);
+        }
+    }
 }
+
 
 impl AVFrame {
     pub fn new() -> Self {
         unsafe {
-            Self { internal: avcodec::av_frame_alloc() }
+            Self(avcodec::av_frame_alloc())
         }
     }
     pub fn get_internal(&self) -> &mut avcodec::AVFrame {
-        return unsafe { &mut *self.internal };
+        return unsafe { &mut *self.0 };
     }
     pub fn unref(&mut self) {
         unsafe {
-            avcodec::av_frame_unref(self.internal);
+            avcodec::av_frame_unref(self.0);
         }
     }
 }
 
 impl Drop for AVFrame {
     fn drop(&mut self) {
-        unsafe { avcodec::av_frame_free(&mut self.internal) }
+        unsafe { avcodec::av_frame_free(&mut self.0) }
     }
 }
 
@@ -220,7 +228,7 @@ pub fn hwframe_ctx_init(hw_frame_ctx: &mut AVBufferRef<AVHWFramesContext>) -> Re
 
 pub fn hwframe_get_buffer(hw_frame_ctx: &mut AVBufferRef<AVHWFramesContext>, frame: &mut AVFrame, flags: i32) -> Result<i32, i32> {
     unsafe {
-        let ret = avcodec::av_hwframe_get_buffer(hw_frame_ctx.internal, frame.internal, flags);
+        let ret = avcodec::av_hwframe_get_buffer(hw_frame_ctx.internal, frame.get_internal(), flags);
         if ret < 0 {
             Err(ret)
         } else {
