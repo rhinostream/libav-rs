@@ -1,12 +1,12 @@
-prefix=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build
+prefix=../build
 exec_prefix=${prefix}
-libdir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/lib
-includedir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/include
+libdir=../build/lib
+includedir=../build/include
 
 Name: libavdevice
 Description: FFmpeg device handling library
-Version: 58.13.100
-Requires: libavformat >= 58.76.100, libavcodec >= 58.134.100, libavutil >= 56.70.100
+Version: 59.0.100
+Requires: libavformat >= 59.4.100, libavcodec >= 59.3.101, libavutil >= 57.0.100
 Requires.private: 
 Conflicts:
 Libs: -L${libdir}  -lavdevice 

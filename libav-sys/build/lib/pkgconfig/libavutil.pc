@@ -1,11 +1,11 @@
-prefix=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build
+prefix=../build
 exec_prefix=${prefix}
-libdir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/lib
-includedir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/include
+libdir=../build/lib
+includedir=../build/include
 
 Name: libavutil
 Description: FFmpeg utility library
-Version: 56.70.100
+Version: 57.0.100
 Requires: 
 Requires.private: 
 Conflicts:

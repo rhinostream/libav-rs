@@ -17,8 +17,8 @@ pub struct AVCodec {
     pub wrapper_name: &'static str,
 }
 
-impl From<*mut avcodec::AVCodec> for AVCodec {
-    fn from(int_codec: *mut avcodec::AVCodec) -> Self {
+impl From<*const avcodec::AVCodec> for AVCodec {
+    fn from(int_codec: *const avcodec::AVCodec) -> Self {
         unsafe {
             Self {
                 int_codec,
@@ -137,7 +137,7 @@ impl Iterator for AVCodecIter {
             if int_codec.is_null() {
                 return None;
             }
-            return Some(AVCodec::from(int_codec as *mut avcodec::AVCodec));
+            return Some(AVCodec::from(int_codec as *const avcodec::AVCodec));
         }
     }
 }

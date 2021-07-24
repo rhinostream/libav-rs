@@ -1,12 +1,12 @@
-prefix=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build
+prefix=../build
 exec_prefix=${prefix}
-libdir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/lib
-includedir=/cygdrive/d/Projects/libav-rust/libav-sys/ffmpeg/build/include
+libdir=../build/lib
+includedir=../build/include
 
 Name: libavfilter
 Description: FFmpeg audio/video filtering library
-Version: 7.110.100
-Requires: libavutil >= 56.70.100
+Version: 8.0.103
+Requires: libavutil >= 57.0.100
 Requires.private: 
 Conflicts:
 Libs: -L${libdir}  -lavfilter nppig.lib nppicc.lib nppc.lib nppidei.lib

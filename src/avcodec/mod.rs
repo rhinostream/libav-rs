@@ -14,6 +14,7 @@ pub use libav_sys::avcodec::{
 };
 #[allow(unused)]
 use log::{error, info};
+use crate::avcodec_sys::_float_const;
 
 include!("codec.rs");
 include!("codec_context.rs");

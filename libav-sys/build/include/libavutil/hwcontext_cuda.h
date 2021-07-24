@@ -60,7 +60,7 @@ typedef struct AVCUDADeviceContext {
 /**
  * Use primary device context instead of creating a new one.
  */
-    #define AV_CUDA_USE_PRIMARY_CONTEXT (1 << 0)
+#define AV_CUDA_USE_PRIMARY_CONTEXT (1 << 0)
 
 /**
  * @}
